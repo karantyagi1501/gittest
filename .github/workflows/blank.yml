@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-       NAME: ${{ vars.NAME }}
+       NAME: ${{ secrets.NAME }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
