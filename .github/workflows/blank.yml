@@ -17,9 +17,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    environment: develop
+    environment: production
     env:
-       ENV: ${{ vars.ENV }}
+       ENV: ${{ vars.NAME }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,7 +31,7 @@ jobs:
         run: echo Hello, world!
 
       - name: print var
-        run: echo "$ENV"
+        run: echo "$NAME"
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
