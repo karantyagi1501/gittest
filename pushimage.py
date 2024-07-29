@@ -12,18 +12,24 @@ def modify_script(input_file_path, output_file_path):
             # Change the default CONTAINER_RUNTIME to 'buildah'
             if 'CONTAINER_RUNTIME=podman' in line:
                 line = line.replace('podman', 'buildah')
-            
             # Update the condition to check only for 'buildah'
             if '[ "${CONTAINER_RUNTIME}" != "docker" ] && [ "${CONTAINER_RUNTIME}" != "podman" ]' in line:
                 line = 'if [ "${CONTAINER_RUNTIME}" != "buildah" ]; then\n'
-            
-            # Append ':v1.0.0' to each tag and push command
-            if 'tag ' in line or 'push ' in line:
+            # Modify tag command to correctly format with storage driver and localhost/
+            if 'tag ' in line:
                 parts = line.split()
-                # Modify the part to include the version
-                parts[-1] = parts[-1].split(':')[0] + ':v1.0.0'
+                # Insert the storage driver option right after the runtime
+                parts.insert(1, '--storage-driver=vfs')
+                # Find the index for the 'tag' keyword and prepend 'localhost/' to the image name
+                tag_index = parts.index('tag') + 1
+                parts[tag_index] = 'localhost/' + parts[tag_index]
                 line = ' '.join(parts) + '\n'
-            
+            # Modify push command to correctly format with storage driver
+            elif 'push ' in line:
+                parts = line.split()
+                # Insert the storage driver option right after the runtime
+                parts.insert(1, '--storage-driver=vfs')
+                line = ' '.join(parts) + '\n'
             # Append the modified line to the list
             modified_lines.append(line)
         
