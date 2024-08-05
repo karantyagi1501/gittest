@@ -1,4 +1,5 @@
 import os
+import re
 
 # Define the base directory containing multiple folders
 BASE_DIR = '/Users/katyagi/Downloads/move2kube-demos-main/samples/enterprise-app/myproject/source'
@@ -7,16 +8,20 @@ def update_dockerfile(file_path):
     try:
         with open(file_path, 'r') as file:
             lines = file.readlines()
-        
         updated = False
         with open(file_path, 'w') as file:
             for line in lines:
-                if line.startswith('FROM registry.access.redhat.com/ubi8/python-36'):
-                    file.write('FROM docker.local.python\n')
+                java_match = re.match(r'FROM registry\.access\.redhat\.com/ubi8/java-36(.*)', line)
+                python_match = re.match(r'FROM registry\.access\.redhat\.com/ubi8/python-36(.*)', line)
+                
+                if java_match:
+                    file.write(f'FROM docker.local.java{java_match.group(1)}\n')
+                    updated = True
+                elif python_match:
+                    file.write(f'FROM docker.local.python{python_match.group(1)}\n')
                     updated = True
                 else:
                     file.write(line)
-        
         if updated:
             print(f"Updated {file_path}")
 
@@ -36,5 +41,4 @@ if __name__ == '__main__':
         folder_path = os.path.join(BASE_DIR, folder)
         if os.path.isdir(folder_path):
             process_directory(folder_path)
-    
     print("Update complete.")
